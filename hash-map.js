@@ -2,23 +2,30 @@
 
 class HashMap {
 
+    #buckets;
+    #size;
+    #capacity;
+    #loadFactor;
+
+
     constructor(){
-        this.buckets = [],
-        this.size = 16
-        this.buckets.length = this.size
-        this.capacity = 0
-        this.loadFactor = 0.75
+        this.#buckets = [],
+        this.#size = 16
+        this.#capacity = 0
+        this.#loadFactor = 0.75
+
+        this.#buckets.length = this.#size
     }
 
-    extend() {
+    #extend() {
 
-        if((this.capacity / this.buckets.length) < this.loadFactor) return
+        if((this.#capacity / this.#buckets.length) < this.#loadFactor) return
 
         let entries = this.entries()
-        this.buckets = []
-        this.size *= 2
-        this.buckets.length = this.size
-        this.capacity = 0
+        this.#buckets = []
+        this.#size *= 2
+        this.#buckets.length = this.#size
+        this.#capacity = 0
 
         for(let i = 0; i < entries.length; i++){
 
@@ -27,14 +34,14 @@ class HashMap {
         }
     }
 
-    indexLimit(index) {
+    #indexLimit(index) {
 
-        if (index < 0 || index >= this.buckets.length) {
+        if (index < 0 || index >= this.#buckets.length) {
             throw new Error("Trying to access index out of bound")
         }
     };
 
-    hash(key){
+    #hash(key){
 
         let hashCode = 0;
         
@@ -48,9 +55,9 @@ class HashMap {
         return hashCode;
     };
 
-    listTraverse(hash, key) {
+    #listTraverse(hash, key) {
 
-        let list = this.buckets[hash]
+        let list = this.#buckets[hash]
 
         let i = -1
         let current = list.head
@@ -69,80 +76,80 @@ class HashMap {
 
     set(key, value){
 
-        let hash = this.hash(key)
+        let hash = this.#hash(key)
 
-        this.indexLimit(hash)
+        this.#indexLimit(hash)
 
-        if(typeof this.buckets[hash] === "undefined"){
+        if(typeof this.#buckets[hash] === "undefined"){
 
             let list = new LinkedList()
             list.prepend({key, value})
 
-            this.buckets[hash] = list
-            this.capacity ++
-            this.extend()
+            this.#buckets[hash] = list
+            this.#capacity ++
+            this.#extend()
 
             return
         } 
         
-        if(this.listTraverse(hash, key) !== null) {
+        if(this.#listTraverse(hash, key) !== null) {
         
-            let {i} = this.listTraverse(hash, key)
+            let {i} = this.#listTraverse(hash, key)
 
-            this.buckets[hash].insertAt({key, value}, i)
-            this.buckets[hash].removeAt(i + 1)
+            this.#buckets[hash].insertAt({key, value}, i)
+            this.#buckets[hash].removeAt(i + 1)
 
             return
         } 
 
 
-        if(this.buckets[hash].head === null) this.capacity ++
+        if(this.#buckets[hash].head === null) this.#capacity ++
 
-        this.extend()
-        this.buckets[hash].append({key, value})            
+        this.#extend()
+        this.#buckets[hash].append({key, value})            
     }
 
     get(key){
 
-        let hash = this.hash(key)
+        let hash = this.#hash(key)
 
-        if(typeof this.buckets[hash] === "undefined" || this.listTraverse(hash, key) === null) return null
+        if(typeof this.#buckets[hash] === "undefined" || this.#listTraverse(hash, key) === null) return null
 
-        let {current} = this.listTraverse(hash, key)
+        let {current} = this.#listTraverse(hash, key)
 
         return current.value.value
     }
 
     has(key){
 
-        let hash = this.hash(key)
+        let hash = this.#hash(key)
 
-        if(typeof this.buckets[hash] === "undefined" || this.listTraverse(hash, key) === null) return false
+        if(typeof this.#buckets[hash] === "undefined" || this.#listTraverse(hash, key) === null) return false
 
         return true
     }
 
     remove(key){
 
-        let hash = this.hash(key)
+        let hash = this.#hash(key)
 
-        if(typeof this.buckets[hash] === "undefined" || this.listTraverse(hash, key) === null) return false
+        if(typeof this.#buckets[hash] === "undefined" || this.#listTraverse(hash, key) === null) return false
 
         
-        let {i} = this.listTraverse(hash, key)
-        this.buckets[hash].removeAt(i)
+        let {i} = this.#listTraverse(hash, key)
+        this.#buckets[hash].removeAt(i)
 
-        if(this.buckets[hash].head === null) this.capacity --
+        if(this.#buckets[hash].head === null) this.#capacity --
 
         return true
     }
 
     clear(){
 
-       this.buckets = []
-       this.size = 16
-       this.buckets.length = this.size
-       this.capacity = 0      
+       this.#buckets = []
+       this.#size = 16
+       this.#buckets.length = this.#size
+       this.#capacity = 0      
     }
 
     length(){
@@ -171,17 +178,17 @@ class HashMap {
 
         let arr = []
 
-        for(let i = 0; i < this.buckets.length; i++){
+        for(let i = 0; i < this.#buckets.length; i++){
 
-           if(typeof this.buckets[i] === "undefined") continue
+           if(typeof this.#buckets[i] === "undefined") continue
 
-            let current = this.buckets[i].head
+            let current = this.#buckets[i].head
 
             let j = 0
 
             while(current !== null) {
 
-                arr.push([this.buckets[i].at(j).value.key, this.buckets[i].at(j).value.value])
+                arr.push([this.#buckets[i].at(j).value.key, this.#buckets[i].at(j).value.value])
                 j++
                 current = current.next
            }
